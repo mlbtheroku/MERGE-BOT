@@ -30,7 +30,7 @@ def get_edit_metadata_keyboard():
         [InlineKeyboardButton("Back", callback_data="back"), InlineKeyboardButton("Close", callback_data="close")]
     ])
 
-@mergeApp.on_callback_query(filters.regex("metadata_status"))
+@Client.on_callback_query(filters.regex("metadata_status"))
 async def handle_metadata_status(c: Client, cb: CallbackQuery):
     uid = cb.from_user.id
     user_settings = getUserMergeSettings(uid)
@@ -45,7 +45,7 @@ async def handle_metadata_status(c: Client, cb: CallbackQuery):
         reply_markup=get_metadata_details_keyboard(metadata)
     )
 
-@mergeApp.on_callback_query(filters.regex("set_metadata"))
+@Client.on_callback_query(filters.regex("set_metadata"))
 async def handle_set_metadata(c: Client, cb: CallbackQuery):
     uid = cb.from_user.id
     enableMetadataToggle(uid, True)
@@ -59,7 +59,7 @@ async def handle_set_metadata(c: Client, cb: CallbackQuery):
     )
     # Store user state or session for metadata entry
 
-@mergeApp.on_message(filters.text)
+@Client.on_message(filters.text)
 async def handle_metadata_input(c: Client, m: Message):
     uid = m.from_user.id
     metadata_input = m.text.strip()
@@ -78,7 +78,7 @@ async def handle_metadata_input(c: Client, m: Message):
     await m.reply_text("Metadata has been updated.")
     # Update button status here
 
-@mergeApp.on_callback_query(filters.regex("edit_metadata"))
+@Client.on_callback_query(filters.regex("edit_metadata"))
 async def handle_edit_metadata(c: Client, cb: CallbackQuery):
     await cb.message.edit(
         text="Send new metadata in the format:\n\n"
@@ -87,7 +87,7 @@ async def handle_edit_metadata(c: Client, cb: CallbackQuery):
     )
     # Store user state or session for metadata editing
 
-@mergeApp.on_callback_query(filters.regex("delete_metadata"))
+@Client.on_callback_query(filters.regex("delete_metadata"))
 async def handle_delete_metadata(c: Client, cb: CallbackQuery):
     uid = cb.from_user.id
     await Database.mergebot.mergeSettings.update_one(
