@@ -1,5 +1,5 @@
 # plugins/metadataEditor.py
-from pyrogram import filters, Client as mergeApp
+from pyrogram import filters, Client
 from pyrogram.types import Message, CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
 from helpers.database import getUserMergeSettings, setUserMergeSettings, enableMetadataToggle, disableMetadataToggle, setMetadata, getMetadata
 from config import Config
@@ -34,7 +34,7 @@ def get_edit_metadata_keyboard():
         [InlineKeyboardButton("Back", callback_data="back"), InlineKeyboardButton("Close", callback_data="close")]
     ])
 
-@mergeApp.on_callback_query(filters.regex("metadata_status"))
+@Client.on_callback_query(filters.regex("metadata_status"))
 async def handle_metadata_status(c: Client, cb: CallbackQuery):
     uid = cb.from_user.id
     user_settings = getUserMergeSettings(uid)
@@ -49,7 +49,7 @@ async def handle_metadata_status(c: Client, cb: CallbackQuery):
         reply_markup=get_metadata_details_keyboard(metadata)
     )
 
-@mergeApp.on_callback_query(filters.regex("set_metadata"))
+@Client.on_callback_query(filters.regex("set_metadata"))
 async def handle_set_metadata(c: Client, cb: CallbackQuery):
     uid = cb.from_user.id
     enableMetadataToggle(uid)
@@ -63,7 +63,7 @@ async def handle_set_metadata(c: Client, cb: CallbackQuery):
     )
     # Store user state or session for metadata entry
 
-@mergeApp.on_message(filters.text)
+@Client.on_message(filters.text)
 async def handle_metadata_input(c: Client, m: Message):
     uid = m.from_user.id
     metadata_input = m.text.strip()
@@ -79,7 +79,7 @@ async def handle_metadata_input(c: Client, m: Message):
     await m.reply_text("Metadata has been set successfully.")
     disableMetadataToggle(uid)
 
-@mergeApp.on_callback_query(filters.regex("edit_metadata"))
+@Client.on_callback_query(filters.regex("edit_metadata"))
 async def handle_edit_metadata(c: Client, cb: CallbackQuery):
     uid = cb.from_user.id
     metadata = getMetadata(uid)
@@ -92,27 +92,27 @@ async def handle_edit_metadata(c: Client, cb: CallbackQuery):
         reply_markup=get_metadata_details_keyboard(metadata)
     )
 
-@mergeApp.on_callback_query(filters.regex("edit_metadata_author"))
+@Client.on_callback_query(filters.regex("edit_metadata_author"))
 async def handle_edit_metadata_author(c: Client, cb: CallbackQuery):
     # Additional logic for editing author metadata
     pass
 
-@mergeApp.on_callback_query(filters.regex("edit_metadata_video"))
+@Client.on_callback_query(filters.regex("edit_metadata_video"))
 async def handle_edit_metadata_video(c: Client, cb: CallbackQuery):
     # Additional logic for editing video metadata
     pass
 
-@mergeApp.on_callback_query(filters.regex("edit_metadata_audio"))
+@Client.on_callback_query(filters.regex("edit_metadata_audio"))
 async def handle_edit_metadata_audio(c: Client, cb: CallbackQuery):
     # Additional logic for editing audio metadata
     pass
 
-@mergeApp.on_callback_query(filters.regex("edit_metadata_subtitle"))
+@Client.on_callback_query(filters.regex("edit_metadata_subtitle"))
 async def handle_edit_metadata_subtitle(c: Client, cb: CallbackQuery):
     # Additional logic for editing subtitle metadata
     pass
 
-@mergeApp.on_callback_query(filters.regex("delete_metadata"))
+@Client.on_callback_query(filters.regex("delete_metadata"))
 async def handle_delete_metadata(c: Client, cb: CallbackQuery):
     uid = cb.from_user.id
     setMetadata(uid, author="", video="", audio="", subtitle="")
@@ -121,14 +121,14 @@ async def handle_delete_metadata(c: Client, cb: CallbackQuery):
         reply_markup=get_metadata_keyboard(True)
     )
 
-@mergeApp.on_callback_query(filters.regex("stop_edit"))
+@Client.on_callback_query(filters.regex("stop_edit"))
 async def handle_stop_edit(c: Client, cb: CallbackQuery):
     await cb.message.edit(
         text="Editing stopped.",
         reply_markup=get_metadata_keyboard(True)
     )
 
-@mergeApp.on_callback_query(filters.regex("back"))
+@Client.on_callback_query(filters.regex("back"))
 async def handle_back(c: Client, cb: CallbackQuery):
     uid = cb.from_user.id
     user_settings = getUserMergeSettings(uid)
@@ -138,6 +138,6 @@ async def handle_back(c: Client, cb: CallbackQuery):
         reply_markup=get_metadata_keyboard(is_set)
     )
 
-@mergeApp.on_callback_query(filters.regex("close"))
+@Client.on_callback_query(filters.regex("close"))
 async def handle_close(c: Client, cb: CallbackQuery):
     await cb.message.delete()
