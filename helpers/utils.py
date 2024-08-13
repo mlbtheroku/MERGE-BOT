@@ -1,4 +1,4 @@
-# (c) dishapatel010
+# helpers/utils.py
 import pickle
 import os.path
 import os
