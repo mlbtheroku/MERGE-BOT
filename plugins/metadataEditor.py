@@ -1,6 +1,4 @@
-#
-# (c) Yash Oswal | yashoswal18@gmail.com
-
+# plugins/metadataEditor.py
 from pyrogram import Client
 from pyrogram.types import Message
 from bot import mergeApp, LOGGER
