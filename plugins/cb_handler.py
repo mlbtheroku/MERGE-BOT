@@ -32,17 +32,13 @@ from plugins.usettings import userSettings
 
 @Client.on_callback_query()
 async def callback_handler(c: Client, cb: CallbackQuery):
-    #     await cb_handler.cb_handler(c, cb)
-    # async def cb_handler(c: Client, cb: CallbackQuery):
     if cb.data == "merge":
         await cb.message.edit(
             text="Where do you want to upload?",
             reply_markup=InlineKeyboardMarkup(
                 [
                     [
-                        InlineKeyboardButton(
-                            "📤 To Telegram", callback_data="to_telegram"
-                        ),
+                        InlineKeyboardButton("📤 To Telegram", callback_data="to_telegram"),
                         InlineKeyboardButton("🌫️ To Drive", callback_data="to_drive"),
                     ],
                     [InlineKeyboardButton("⛔ Cancel ⛔", callback_data="cancel")],
@@ -59,7 +55,7 @@ async def callback_handler(c: Client, cb: CallbackQuery):
             )
         except Exception:
             await cb.message.reply_text("Rclone not Found, Unable to upload to drive")
-        if os.path.exists(f"userdata/{cb.from_user.id}/rclone.conf") is False:
+        if not os.path.exists(f"userdata/{cb.from_user.id}/rclone.conf"):
             await cb.message.delete()
             await delete_all(root=f"downloads/{cb.from_user.id}/")
             queueDB.update(
@@ -85,7 +81,7 @@ async def callback_handler(c: Client, cb: CallbackQuery):
     elif cb.data == "to_telegram":
         UPLOAD_TO_DRIVE.update({f"{cb.from_user.id}": False})
         await cb.message.edit(
-            text="How do yo want to upload file",
+            text="How do you want to upload the file?",
             reply_markup=InlineKeyboardMarkup(
                 [
                     [
@@ -149,7 +145,7 @@ async def callback_handler(c: Client, cb: CallbackQuery):
             await cb.message.edit(
                 "Current filename: **[@yashoswalyo]_merged.mkv**\n\nSend me new file name without extension: You have 1 minute"
             )
-            res: Message = await c.listen(chat_id=cb.message.chat.id, filters=filters.text, listener_type=ListenerTypes.MESSAGE, timeout=120, user_id=cb.from_user.id)
+            res: Message = await c.listen(chat_id=cb.message.chat.id, filters=filters.text, listener_type=ListenerTypes.MESSAGE, timeout=60, user_id=cb.from_user.id)
             if res.text:
                 new_file_name = f"downloads/{str(cb.from_user.id)}/{res.text}.mkv"
                 await res.delete(True)
@@ -162,9 +158,7 @@ async def callback_handler(c: Client, cb: CallbackQuery):
             return
 
         if "NO" in cb.data:
-            new_file_name = (
-                f"downloads/{str(cb.from_user.id)}/[@yashoswalyo]_merged.mkv"
-            )
+            new_file_name = f"downloads/{str(cb.from_user.id)}/[@yashoswalyo]_merged.mkv"
             if user.merge_mode == 1:
                 await mergeNow(c, cb, new_file_name)
             elif user.merge_mode == 2:
@@ -176,7 +170,7 @@ async def callback_handler(c: Client, cb: CallbackQuery):
         await delete_all(root=f"downloads/{cb.from_user.id}/")
         queueDB.update({cb.from_user.id: {"videos": [], "subtitles": [], "audios": []}})
         formatDB.update({cb.from_user.id: None})
-        await cb.message.edit("Sucessfully Cancelled")
+        await cb.message.edit("Successfully Cancelled")
         await asyncio.sleep(5)
         await cb.message.delete(True)
         return
@@ -313,7 +307,7 @@ async def callback_handler(c: Client, cb: CallbackQuery):
             ),
         )
         subs: Message = await c.listen(
-            chat_id=cb.message.chat.id, filters=filters.document, listener_type=ListenerTypes.MESSAGE, timeout=120, user_id=cb.from_user.id
+            chat_id=cb.message.chat.id, filters=filters.document, listener_type=ListenerTypes.MESSAGE, timeout=60, user_id=cb.from_user.id
         )
         if subs is not None:
             media = subs.document or subs.video
@@ -355,7 +349,7 @@ async def callback_handler(c: Client, cb: CallbackQuery):
         vMessId = queueDB.get(cb.from_user.id)["videos"][sIndex]
         queueDB.get(cb.from_user.id)["subtitles"][sIndex] = None
         await cb.message.edit(
-            text=f"Subtitle Removed Now go back or send next video",
+            text=f"Subtitle Removed. Now go back or send the next video",
             reply_markup=InlineKeyboardMarkup(
                 [
                     [
@@ -399,7 +393,7 @@ async def callback_handler(c: Client, cb: CallbackQuery):
     elif cb.data.startswith("toggleEdit_"):
         uid = int(cb.data.split("_")[1])
         user = UserSettings(uid, cb.from_user.first_name)
-        user.edit_metadata = False if user.edit_metadata else True
+        user.edit_metadata = not user.edit_metadata
         user.set()
         await userSettings(
             cb.message, uid, cb.from_user.first_name, cb.from_user.last_name, user
