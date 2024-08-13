@@ -27,7 +27,7 @@ from plugins.mergeVideo import mergeNow
 from plugins.mergeVideoAudio import mergeAudio
 from plugins.mergeVideoSub import mergeSub
 from plugins.streams_extractor import streamsExtractor
-from plugins.usettings import userSettings
+from plugins.usettings import user_settings
 
 
 @Client.on_callback_query()
@@ -381,7 +381,7 @@ async def callback_handler(c: Client, cb: CallbackQuery):
         mode = int(cb.data.split("_")[2])
         user.merge_mode = mode
         user.set()
-        await userSettings(
+        await user_settings(
             cb.message, int(uid), cb.from_user.first_name, cb.from_user.last_name, user
         )
         return
@@ -392,10 +392,10 @@ async def callback_handler(c: Client, cb: CallbackQuery):
 
     elif cb.data.startswith("toggleEdit_"):
         uid = int(cb.data.split("_")[1])
-        user = UserSettings(uid, cb.from_user.first_name)
+        user = user_settings(uid, cb.from_user.first_name)
         user.edit_metadata = not user.edit_metadata
         user.set()
-        await userSettings(
+        await user_settings(
             cb.message, uid, cb.from_user.first_name, cb.from_user.last_name, user
         )
         return
