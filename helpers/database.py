@@ -5,11 +5,9 @@ from pyrogram.types import CallbackQuery
 from config import Config
 from __init__ import LOGGER, MERGE_MODE
 
-
 class Database(object):
     client = MongoClient(Config.DATABASE_URL)
     mergebot = client.MergeBot
-
 
 async def addUser(uid, fname, lname):
     try:
@@ -23,15 +21,13 @@ async def addUser(uid, fname, lname):
         LOGGER.info(f"Duplicate Entry Found for id={uid}\n{fname} {lname} \n")
     return
 
-
 async def broadcast():
     a = Database.mergebot.mergeSettings.find({})
     return a
 
-
 async def allowUser(uid, fname, lname):
     try:
-        a = Database.mergebot.allowedUsers.insert_one(
+        Database.mergebot.allowedUsers.insert_one(
             {
                 "_id": uid,
             }
@@ -39,7 +35,6 @@ async def allowUser(uid, fname, lname):
     except DuplicateKeyError:
         LOGGER.info(f"Duplicate Entry Found for id={uid}\n{fname} {lname} \n")
     return
-
 
 async def allowedUser(uid):
     a = Database.mergebot.allowedUsers.find_one({"_id": uid})
@@ -49,27 +44,22 @@ async def allowedUser(uid):
     except TypeError:
         return False
 
-
 async def saveThumb(uid, fid):
     try:
         Database.mergebot.thumbnail.insert_one({"_id": uid, "thumbid": fid})
     except DuplicateKeyError:
         Database.mergebot.thumbnail.replace_one({"_id": uid}, {"thumbid": fid})
 
-
 async def delThumb(uid):
     Database.mergebot.thumbnail.delete_many({"_id": uid})
     return True
-
 
 async def getThumb(uid):
     res = Database.mergebot.thumbnail.find_one({"_id": uid})
     return res["thumbid"]
 
-
 async def deleteUser(uid):
     Database.mergebot.mergeSettings.delete_many({"_id": uid})
-
 
 async def addUserRcloneConfig(cb: CallbackQuery, fileId):
     try:
@@ -84,14 +74,12 @@ async def addUserRcloneConfig(cb: CallbackQuery, fileId):
     await cb.message.edit("Done")
     return
 
-
 async def getUserRcloneConfig(uid):
     try:
         res = Database.mergebot.rcloneData.find_one({"_id": uid})
         return res["rcloneFileId"]
     except Exception as err:
         return None
-
 
 def getUserMergeSettings(uid: int):
     try:
@@ -100,7 +88,6 @@ def getUserMergeSettings(uid: int):
     except Exception as e:
         LOGGER.info(e)
         return None
-
 
 def setUserMergeSettings(uid: int, name: str, mode, edit_metadata, banned, allowed, thumbnail):
     modes = Config.MODES
@@ -136,40 +123,24 @@ def setUserMergeSettings(uid: int, name: str, mode, edit_metadata, banned, allow
             )
             LOGGER.info("User {} Mode updated to {}".format(uid, modes[mode - 1]))
         MERGE_MODE[uid] = mode
-    # elif mode == 2:
-    #     try:
-    #         Database.mergebot.mergeModes.insert_one(
-    #             document={"_id": uid, modes[0]: 0, modes[1]: 1, modes[2]: 0}
-    #         )
-    #         LOGGER.info("User {} Mode updated to {}".format(uid, modes[1]))
-    #     except Exception:
-    #         rep = Database.mergebot.mergeModes.replace_one(
-    #             filter={"_id": uid},
-    #             replacement={modes[0]: 0, modes[1]: 1, modes[2]: 0},
-    #         )
-    #         LOGGER.info("User {} Mode updated to {}".format(uid, modes[1]))
-    #     MERGE_MODE[uid] = 2
-    #     # Database.mergebot.mergeModes.delete_many({'id':uid})
-    # elif mode == 3:
-    #     try:
-    #         Database.mergebot.mergeModes.insert_one(
-    #             document={"_id": uid, modes[0]: 0, modes[1]: 0, modes[2]: 1}
-    #         )
-    #         LOGGER.info("User {} Mode updated to {}".format(uid, modes[2]))
-    #     except Exception:
-    #         rep = Database.mergebot.mergeModes.replace_one(
-    #             filter={"_id": uid},
-    #             replacement={modes[0]: 0, modes[1]: 0, modes[2]: 1},
-    #         )
-    #         LOGGER.info("User {} Mode updated to {}".format(uid, modes[2]))
-    #     MERGE_MODE[uid]=3
     LOGGER.info(MERGE_MODE)
 
+def enableMetadataToggle(uid: int):
+    try:
+        Database.mergebot.mergeSettings.update_one(
+            {"_id": uid},
+            {"$set": {"user_settings.edit_metadata": True}}
+        )
+        LOGGER.info(f"Metadata toggle enabled for user {uid}")
+    except Exception as e:
+        LOGGER.error(f"Failed to enable metadata toggle for user {uid}: {e}")
 
-def enableMetadataToggle(uid: int, value: bool):
-
-    1
-
-
-def disableMetadataToggle(uid: int, value: bool):
-    1
+def disableMetadataToggle(uid: int):
+    try:
+        Database.mergebot.mergeSettings.update_one(
+            {"_id": uid},
+            {"$set": {"user_settings.edit_metadata": False}}
+        )
+        LOGGER.info(f"Metadata toggle disabled for user {uid}")
+    except Exception as e:
+        LOGGER.error(f"Failed to disable metadata toggle for user {uid}: {e}")
