@@ -1,5 +1,5 @@
 # plugins/metadataEditor.py
-from pyrogram import Client, filters
+from pyrogram import filters, Client as mergeApp
 from pyrogram.types import Message, CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
 from helpers.database import getUserMergeSettings, setUserMergeSettings, enableMetadataToggle, disableMetadataToggle, setMetadata, getMetadata
 from config import Config
