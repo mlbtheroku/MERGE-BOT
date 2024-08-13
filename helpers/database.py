@@ -127,16 +127,26 @@ def setUserMergeSettings(uid: int, name: str, mode, edit_metadata, banned, allow
         MERGE_MODE[uid] = mode
     LOGGER.info(MERGE_MODE)
 
-def enableMetadataToggle(uid: int, value: bool):
-    # This function will be called to enable metadata functionality for a user
+def enableMetadataToggle(uid: int):
     Database.mergebot.mergeSettings.update_one(
         {"_id": uid},
-        {"$set": {"user_settings.edit_metadata": value}}
+        {"$set": {"user_settings.edit_metadata": True}}
     )
 
-def disableMetadataToggle(uid: int, value: bool):
-    # This function will be called to disable metadata functionality for a user
+def disableMetadataToggle(uid: int):
     Database.mergebot.mergeSettings.update_one(
         {"_id": uid},
-        {"$set": {"user_settings.edit_metadata": value}}
+        {"$set": {"user_settings.edit_metadata": False}}
     )
+
+def setMetadata(uid: int, author: str, video: str, audio: str, subtitle: str):
+    Database.mergebot.mergeSettings.update_one(
+        {"_id": uid},
+        {"$set": {"user_settings.metadata": {"author": author, "video": video, "audio": audio, "subtitle": subtitle}}}
+    )
+
+def getMetadata(uid: int):
+    user = Database.mergebot.mergeSettings.find_one({"_id": uid})
+    if user and "user_settings" in user and "metadata" in user["user_settings"]:
+        return user["user_settings"]["metadata"]
+    return {}
