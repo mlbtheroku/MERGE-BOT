@@ -5,16 +5,13 @@ from pyrogram.types import Message, InlineKeyboardMarkup
 from helpers.msg_utils import MakeButtons
 from helpers.utils import UserSettings
 
-
 @mergeApp.on_message(filters.command(["settings"]))
 async def f1(c: mergeApp, m: Message):
-    # setUserMergeMode(uid=m.from_user.id,mode=1)
     replay = await m.reply(text="Please wait", quote=True)
     usettings = UserSettings(m.from_user.id, m.from_user.first_name)
     await userSettings(
         replay, m.from_user.id, m.from_user.first_name, m.from_user.last_name, usettings
     )
-
 
 async def userSettings(
     editable: Message,
@@ -24,6 +21,7 @@ async def userSettings(
     usettings: UserSettings,
 ):
     b = MakeButtons()
+    
     if usettings.user_id:
         if usettings.merge_mode == 1:
             userMergeModeId = 1
@@ -36,11 +34,10 @@ async def userSettings(
             userMergeModeStr = "Video 🎥 + Subtitle 📜"
         elif usettings.merge_mode == 4:
             userMergeModeId = 4
-            userMergeModeStr = "Extract" 
-        if usettings.edit_metadata:
-            editMetadataStr = "✅"
-        else:
-            editMetadataStr = "❌"
+            userMergeModeStr = "Extract"
+        
+        editMetadataStr = "✅" if usettings.edit_metadata else "❌"
+        
         uSettingsMessage = f"""
 <b><u>Merge Bot settings for <a href='tg://user?id={uid}'>{fname} {lname}</a></u></b>
     ┃
@@ -77,6 +74,4 @@ async def userSettings(
         usettings.edit_metadata = False
         usettings.thumbnail = None
         await userSettings(editable, uid, fname, lname, usettings)
-    # await asyncio.sleep(10)
-    # await c.delete_messages(chat_id=editable.chat.id, message_ids=[res.id-1,res.id])
     return
