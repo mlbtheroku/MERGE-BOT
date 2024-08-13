@@ -100,6 +100,7 @@ def setUserMergeSettings(uid: int, name: str, mode, edit_metadata, banned, allow
                     "user_settings": {
                         "merge_mode": mode,
                         "edit_metadata": edit_metadata,
+                        "metadata": {}
                     },
                     "isAllowed": allowed,
                     "isBanned": banned,
@@ -115,6 +116,7 @@ def setUserMergeSettings(uid: int, name: str, mode, edit_metadata, banned, allow
                     "user_settings": {
                         "merge_mode": mode,
                         "edit_metadata": edit_metadata,
+                        "metadata": {}
                     },
                     "isAllowed": allowed,
                     "isBanned": banned,
@@ -125,22 +127,16 @@ def setUserMergeSettings(uid: int, name: str, mode, edit_metadata, banned, allow
         MERGE_MODE[uid] = mode
     LOGGER.info(MERGE_MODE)
 
-def enableMetadataToggle(uid: int):
-    try:
-        Database.mergebot.mergeSettings.update_one(
-            {"_id": uid},
-            {"$set": {"user_settings.edit_metadata": True}}
-        )
-        LOGGER.info(f"Metadata toggle enabled for user {uid}")
-    except Exception as e:
-        LOGGER.error(f"Failed to enable metadata toggle for user {uid}: {e}")
+def enableMetadataToggle(uid: int, value: bool):
+    # This function will be called to enable metadata functionality for a user
+    Database.mergebot.mergeSettings.update_one(
+        {"_id": uid},
+        {"$set": {"user_settings.edit_metadata": value}}
+    )
 
-def disableMetadataToggle(uid: int):
-    try:
-        Database.mergebot.mergeSettings.update_one(
-            {"_id": uid},
-            {"$set": {"user_settings.edit_metadata": False}}
-        )
-        LOGGER.info(f"Metadata toggle disabled for user {uid}")
-    except Exception as e:
-        LOGGER.error(f"Failed to disable metadata toggle for user {uid}: {e}")
+def disableMetadataToggle(uid: int, value: bool):
+    # This function will be called to disable metadata functionality for a user
+    Database.mergebot.mergeSettings.update_one(
+        {"_id": uid},
+        {"$set": {"user_settings.edit_metadata": value}}
+    )
