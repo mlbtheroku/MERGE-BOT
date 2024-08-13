@@ -392,7 +392,7 @@ async def callback_handler(c: Client, cb: CallbackQuery):
 
     elif cb.data.startswith("toggleEdit_"):
         uid = int(cb.data.split("_")[1])
-        user = user_settings(uid, cb.from_user.first_name)
+        user = UserSettings(uid, cb.from_user.first_name)
         user.edit_metadata = not user.edit_metadata
         user.set()
         await user_settings(
