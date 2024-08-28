@@ -1,46 +1,22 @@
+# bot.py
 from dotenv import load_dotenv
+load_dotenv("config.env", override=True)
 
-load_dotenv(
-    "config.env",
-    override=True,
-)
-import asyncio
 import os
-import shutil
 import time
-
+import shutil
+import asyncio
 import psutil
 import pyromod
 from PIL import Image
-from pyrogram import Client, filters,enums
-from pyrogram.errors import (
-    FloodWait,
-    InputUserDeactivated,
-    PeerIdInvalid,
-    UserIsBlocked,
-)
-from pyrogram.types import (
-    CallbackQuery,
-    InlineKeyboardButton,
-    InlineKeyboardMarkup,
-    Message,
-    User,
-)
+from pyrogram import Client, filters, enums
+from pyrogram.errors import FloodWait, InputUserDeactivated, PeerIdInvalid, UserIsBlocked
+from pyrogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Message, User
 
 from __init__ import (
-    AUDIO_EXTENSIONS,
-    BROADCAST_MSG,
-    LOGGER,
-    MERGE_MODE,
-    SUBTITLE_EXTENSIONS,
-    UPLOAD_AS_DOC,
-    UPLOAD_TO_DRIVE,
-    VIDEO_EXTENSIONS,
-    bMaker,
-    formatDB,
-    gDict,
-    queueDB,
-    replyDB,
+    AUDIO_EXTENSIONS, BROADCAST_MSG, LOGGER, MERGE_MODE,
+    SUBTITLE_EXTENSIONS, UPLOAD_AS_DOC, UPLOAD_TO_DRIVE,
+    VIDEO_EXTENSIONS, bMaker, formatDB, gDict, queueDB, replyDB
 )
 from config import Config
 from helpers import database
