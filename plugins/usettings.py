@@ -36,11 +36,18 @@ async def userSettings(
             userMergeModeStr = "Video 🎥 + Subtitle 📜"
         elif usettings.merge_mode == 4:
             userMergeModeId = 4
-            userMergeModeStr = "Extract" 
-        if usettings.edit_metadata:
-            editMetadataStr = "✅"
-        else:
-            editMetadataStr = "❌"
+            userMergeModeStr = "Extract"
+        
+        editMetadataStr = "✅" if usettings.edit_metadata else "❌"
+        metadata_display = "Metadata is currently disabled" if not usettings.edit_metadata else f"""
+<b><u>Current Metadata for <a href='tg://user?id={uid}'>{fname} {lname}</a></u></b>
+    ┃
+    ┣**Author: <u>{usettings.author or "Not Set"}</u>**
+    ┣**Video: <u>{usettings.video or "Not Set"}</u>**
+    ┣**Audio: <u>{usettings.audio or "Not Set"}</u>**
+    ┗**Subtitle: <u>{usettings.subtitle or "Not Set"}</u>**
+"""
+
         uSettingsMessage = f"""
 <b><u>Merge Bot settings for <a href='tg://user?id={uid}'>{fname} {lname}</a></u></b>
     ┃
@@ -50,26 +57,26 @@ async def userSettings(
     ┣**{'✅' if usettings.edit_metadata else '❌'} Edit Metadata: <u>{usettings.edit_metadata}</u>**
     ┗**Ⓜ️ Merge mode: <u>{userMergeModeStr}</u>**
 """
-        markup = b.makebuttons(
-            [
-                "Merge mode",
-                userMergeModeStr,
-                "Edit Metadata",
-                editMetadataStr,
-                "Close",
-            ],
-            [
-                "tryotherbutton",
-                f"ch@ng3M0de_{uid}_{(userMergeModeId%4)+1}",
-                "tryotherbutton",
-                f"toggleEdit_{uid}",
-                "close",
-            ],
-            rows=2,
-        )
-        res = await editable.edit(
-            text=uSettingsMessage, reply_markup=InlineKeyboardMarkup(markup)
-        )
+        if not usettings.edit_metadata:
+            markup = b.makebuttons(
+                ["Set Metadata", "Back", "Close"],
+                [f"setMetadata_{uid}", "back", "close"],
+                rows=1
+            )
+            res = await editable.edit(
+                text=f"{metadata_display}\n{uSettingsMessage}",
+                reply_markup=InlineKeyboardMarkup(markup)
+            )
+        else:
+            markup = b.makebuttons(
+                ["Edit", "Delete", "Back", "Close"],
+                [f"editMetadata_{uid}", f"deleteMetadata_{uid}", "back", "close"],
+                rows=2
+            )
+            res = await editable.edit(
+                text=f"{metadata_display}\n{uSettingsMessage}",
+                reply_markup=InlineKeyboardMarkup(markup)
+            )
     else:
         usettings.name = fname
         usettings.merge_mode = 1
@@ -77,6 +84,4 @@ async def userSettings(
         usettings.edit_metadata = False
         usettings.thumbnail = None
         await userSettings(editable, uid, fname, lname, usettings)
-    # await asyncio.sleep(10)
-    # await c.delete_messages(chat_id=editable.chat.id, message_ids=[res.id-1,res.id])
     return
